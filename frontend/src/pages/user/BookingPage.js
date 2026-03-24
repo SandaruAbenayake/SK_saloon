@@ -5,7 +5,7 @@ import {
   FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import api from '../../services/api';
 import Popup from '../../components/Popup';
@@ -105,12 +105,12 @@ export default function BookingPage() {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', py: 4, px: 2 }}>
-      <Typography variant="h4" color="secondary.main" gutterBottom>
+    <Box sx={{ maxWidth: 900, mx: 'auto', py: { xs: 2, sm: 4 }, px: { xs: 1.5, sm: 2 } }}>
+      <Typography variant="h4" color="secondary.main" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
         Book an Appointment
       </Typography>
 
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }} alternativeLabel>
+      <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, sm: 4 }, display: { xs: 'none', sm: 'flex' } }} alternativeLabel>
         {['Select Service', 'Pick Date', 'Choose Time', 'Confirm'].map((label) => (
           <Step key={label}><StepLabel>{label}</StepLabel></Step>
         ))}
@@ -147,7 +147,7 @@ export default function BookingPage() {
                       </Typography>
                     )}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-                      <AttachMoneyIcon fontSize="small" sx={{ color: 'secondary.main' }} />
+                      <CurrencyRupeeIcon fontSize="small" sx={{ color: 'secondary.main' }} />
                       <Typography variant="h6" color="secondary.main" fontWeight={700}>
                         {Number(svc.price).toFixed(2)}
                       </Typography>
@@ -218,16 +218,16 @@ export default function BookingPage() {
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>4. Confirm Booking</Typography>
-            <Box sx={{ bgcolor: 'background.default', borderRadius: 2, p: 2, mb: 2 }}>
+            <Box sx={{ bgcolor: 'background.default', borderRadius: 2, p: { xs: 1.5, sm: 2 }, mb: 2 }}>
               <Grid container spacing={1}>
-                <Grid size={6}><Typography variant="body2" color="text.secondary">Service</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" fontWeight={600}>{selectedService.name}</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" color="text.secondary">Date</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" fontWeight={600}>{selectedDate}</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" color="text.secondary">Time</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" fontWeight={600}>{selectedSlot.start} – {selectedSlot.end}</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" color="text.secondary">Price</Typography></Grid>
-                <Grid size={6}><Typography variant="body2" fontWeight={600} color="secondary.main">${Number(selectedService.price).toFixed(2)}</Typography></Grid>
+                <Grid size={{ xs: 5, sm: 6 }}><Typography variant="body2" color="text.secondary">Service</Typography></Grid>
+                <Grid size={{ xs: 7, sm: 6 }}><Typography variant="body2" fontWeight={600}>{selectedService.name}</Typography></Grid>
+                <Grid size={{ xs: 5, sm: 6 }}><Typography variant="body2" color="text.secondary">Date</Typography></Grid>
+                <Grid size={{ xs: 7, sm: 6 }}><Typography variant="body2" fontWeight={600}>{selectedDate}</Typography></Grid>
+                <Grid size={{ xs: 5, sm: 6 }}><Typography variant="body2" color="text.secondary">Time</Typography></Grid>
+                <Grid size={{ xs: 7, sm: 6 }}><Typography variant="body2" fontWeight={600}>{selectedSlot.start} – {selectedSlot.end}</Typography></Grid>
+                <Grid size={{ xs: 5, sm: 6 }}><Typography variant="body2" color="text.secondary">Price</Typography></Grid>
+                <Grid size={{ xs: 7, sm: 6 }}><Typography variant="body2" fontWeight={600} color="secondary.main">LKR {Number(selectedService.price).toFixed(2)}</Typography></Grid>
               </Grid>
             </Box>
             <TextField
@@ -245,6 +245,7 @@ export default function BookingPage() {
               size="large"
               onClick={handleBook}
               disabled={booking}
+              fullWidth
               sx={{ px: 5 }}
             >
               {booking ? 'Booking...' : 'Confirm Booking'}
