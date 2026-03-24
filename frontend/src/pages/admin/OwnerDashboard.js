@@ -52,7 +52,7 @@ export default function OwnerDashboard() {
 
   return (
     <Box>
-      <Typography variant="h4" color="secondary.main" gutterBottom>Dashboard</Typography>
+      <Typography variant="h4" color="secondary.main" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Dashboard</Typography>
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -60,7 +60,7 @@ export default function OwnerDashboard() {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <EventIcon sx={{ fontSize: 36, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h3" fontWeight={700} color="primary.main">{todayBookings.length}</Typography>
+              <Typography variant="h3" fontWeight={700} color="primary.main" sx={{ fontSize: { xs: '2rem', sm: '3rem' } }}>{todayBookings.length}</Typography>
               <Typography variant="body2" color="text.secondary">Today's Appointments</Typography>
             </CardContent>
           </Card>
@@ -69,7 +69,7 @@ export default function OwnerDashboard() {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <PeopleIcon sx={{ fontSize: 36, color: 'secondary.main', mb: 1 }} />
-              <Typography variant="h3" fontWeight={700} color="secondary.main">
+              <Typography variant="h3" fontWeight={700} color="secondary.main" sx={{ fontSize: { xs: '2rem', sm: '3rem' } }}>
                 {new Set(todayBookings.map((b) => b.customer_id)).size}
               </Typography>
               <Typography variant="body2" color="text.secondary">Unique Customers</Typography>
@@ -80,7 +80,7 @@ export default function OwnerDashboard() {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <AccessTimeIcon sx={{ fontSize: 36, color: 'success.main', mb: 1 }} />
-              <Typography variant="h3" fontWeight={700} color="success.main">
+              <Typography variant="h3" fontWeight={700} color="success.main" sx={{ fontSize: { xs: '2rem', sm: '3rem' } }}>
                 {todayBookings.reduce((sum, b) => sum + (b.duration_minutes || 0), 0)} min
               </Typography>
               <Typography variant="body2" color="text.secondary">Total Scheduled Time</Typography>
@@ -97,8 +97,8 @@ export default function OwnerDashboard() {
         <Stack spacing={2}>
           {todayBookings.map((b) => (
             <Card key={b.id}>
-              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
                   <Avatar sx={{ bgcolor: 'primary.main', width: 44, height: 44 }}>
                     {b.customer_name?.[0]?.toUpperCase()}
                   </Avatar>
@@ -113,11 +113,12 @@ export default function OwnerDashboard() {
                     </Box>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
                   <Button
                     variant="contained"
                     color="success"
                     size="small"
+                    fullWidth
                     startIcon={<CheckCircleIcon />}
                     onClick={() => handleComplete(b.id)}
                   >

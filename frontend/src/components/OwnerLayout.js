@@ -135,10 +135,11 @@ export default function OwnerLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 1.5, sm: 2, md: 3 },
           mt: { xs: 8, md: 0 },
           ml: { md: `${DRAWER_WIDTH}px` },
           minHeight: '100vh',
+          overflow: 'hidden',
         }}
       >
         <Outlet />

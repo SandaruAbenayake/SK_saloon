@@ -57,7 +57,7 @@ export default function OwnerBookingsPage() {
 
   return (
     <Box>
-      <Typography variant="h4" color="secondary.main" gutterBottom>All Bookings</Typography>
+      <Typography variant="h4" color="secondary.main" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>All Bookings</Typography>
 
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', py: '12px !important' }}>
@@ -83,8 +83,8 @@ export default function OwnerBookingsPage() {
         <Stack spacing={2}>
           {bookings.map((b) => (
             <Card key={b.id}>
-              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, py: '12px !important' }}>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1.5, py: '12px !important', flexDirection: { xs: 'column', sm: 'row' } }}>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
                   <Avatar sx={{ bgcolor: 'secondary.main', color: '#000', fontWeight: 700 }}>
                     {b.customer_name?.[0]?.toUpperCase() || '?'}
                   </Avatar>
@@ -99,7 +99,7 @@ export default function OwnerBookingsPage() {
                       </Typography>
                     </Box>
                     <Typography variant="body2" sx={{ mt: 0.5 }}>
-                      {b.service_name} &bull; <strong>${Number(b.price).toFixed(2)}</strong>
+                      {b.service_name} &bull; <strong>LKR {Number(b.price).toFixed(2)}</strong>
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 2, mt: 0.5 }}>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

@@ -97,13 +97,14 @@ export default function OwnerSchedulePage() {
 
   return (
     <Box>
-      <Typography variant="h4" color="secondary.main" gutterBottom>Schedule Management</Typography>
+      <Typography variant="h4" color="secondary.main" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Schedule Management</Typography>
 
       {/* Daily Hours */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>Daily Operating Hours</Typography>
-          <Table size="small">
+          <Box sx={{ overflowX: 'auto' }}>
+          <Table size="small" sx={{ minWidth: 520 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Day</TableCell>
@@ -159,6 +160,7 @@ export default function OwnerSchedulePage() {
               ))}
             </TableBody>
           </Table>
+          </Box>
         </CardContent>
       </Card>
 
@@ -167,7 +169,8 @@ export default function OwnerSchedulePage() {
         <CardContent>
           <Typography variant="h6" gutterBottom>Breaks</Typography>
           {breaks.length > 0 && (
-            <Table size="small" sx={{ mb: 3 }}>
+            <Box sx={{ overflowX: 'auto' }}>
+            <Table size="small" sx={{ mb: 3, minWidth: 420 }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Day</TableCell>
@@ -195,6 +198,7 @@ export default function OwnerSchedulePage() {
                 ))}
               </TableBody>
             </Table>
+            </Box>
           )}
           <form onSubmit={handleAddBreak}>
             <Grid container spacing={2} alignItems="center">
