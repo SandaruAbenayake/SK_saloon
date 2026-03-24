@@ -21,15 +21,15 @@ export default function HomePage() {
   const { user } = useAuth();
 
   return (
-    <Container maxWidth="md" sx={{ mt: 10, textAlign: 'center' }}>
-      <Typography variant="h2" fontWeight={800} color="secondary.main" gutterBottom>
+    <Container maxWidth="md" sx={{ mt: { xs: 4, sm: 6, md: 10 }, textAlign: 'center', px: { xs: 2, sm: 3 } }}>
+      <Typography variant="h2" fontWeight={800} color="secondary.main" gutterBottom sx={{ fontSize: { xs: '2rem', sm: '2.75rem', md: '3.75rem' } }}>
         BarberBook
       </Typography>
-      <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto', mb: 5 }}>
+      <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto', mb: { xs: 3, sm: 5 }, fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>
         Premium men's grooming. Book your appointment online — fast, simple, and hassle-free.
       </Typography>
 
-      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 8 }}>
+      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: { xs: 4, sm: 8 } }}>
         {user ? (
           user.role === 'owner' ? (
             <Button component={Link} to="/owner/dashboard" variant="contained" size="large" endIcon={<ArrowForwardIcon />}>
@@ -51,8 +51,8 @@ export default function HomePage() {
       <Grid container spacing={3}>
         {features.map((f) => (
           <Grid size={{ xs: 6, sm: 3 }} key={f.title}>
-            <Card sx={{ textAlign: 'center', py: 3, height: '100%' }}>
-              <CardContent>
+            <Card sx={{ textAlign: 'center', py: { xs: 1.5, sm: 3 }, height: '100%' }}>
+              <CardContent sx={{ px: { xs: 1, sm: 2 } }}>
                 <Box sx={{ color: 'secondary.main', mb: 1 }}>{f.icon}</Box>
                 <Typography variant="subtitle1" fontWeight={700} color="secondary.main">{f.title}</Typography>
                 <Typography variant="body2" color="text.secondary">{f.desc}</Typography>
