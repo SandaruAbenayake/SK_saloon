@@ -38,9 +38,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '80vh', alignItems: 'center', justifyContent: 'center' }}>
+    <Box sx={{ display: 'flex', minHeight: { xs: '70vh', sm: '80vh' }, alignItems: 'center', justifyContent: 'center', px: 1 }}>
       <Card sx={{ maxWidth: 440, width: '100%', mx: 2 }}>
-        <CardContent sx={{ p: 4 }}>
+        <CardContent sx={{ p: { xs: 2.5, sm: 4 } }}>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <ContentCutIcon sx={{ fontSize: 40, color: 'secondary.main', mb: 1 }} />
             <Typography variant="h5" color="secondary.main">Create Account</Typography>

@@ -43,8 +43,8 @@ export default function MyBookingsPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4, px: 2 }}>
-      <Typography variant="h4" color="secondary.main" gutterBottom>My Bookings</Typography>
+    <Box sx={{ maxWidth: 800, mx: 'auto', py: { xs: 2, sm: 4 }, px: { xs: 1.5, sm: 2 } }}>
+      <Typography variant="h4" color="secondary.main" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>My Bookings</Typography>
 
       {bookings.length === 0 ? (
         <Alert severity="info" sx={{ mt: 2 }}>You haven't made any bookings yet.</Alert>
@@ -52,10 +52,10 @@ export default function MyBookingsPage() {
         <Stack spacing={2}>
           {bookings.map((b) => (
             <Card key={b.id}>
-              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                <Box>
-                  <Typography variant="h6" fontWeight={600}>{b.service_name}</Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5, color: 'text.secondary' }}>
+              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>{b.service_name}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, mt: 0.5, color: 'text.secondary', flexWrap: 'wrap' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <EventIcon fontSize="small" />
                       <Typography variant="body2">{b.booking_date?.split('T')[0]}</Typography>
@@ -66,7 +66,7 @@ export default function MyBookingsPage() {
                     </Box>
                   </Box>
                   <Typography variant="body2" color="secondary.main" fontWeight={600} sx={{ mt: 0.5 }}>
-                    ${Number(b.price).toFixed(2)}
+                    LKR {Number(b.price).toFixed(2)}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
