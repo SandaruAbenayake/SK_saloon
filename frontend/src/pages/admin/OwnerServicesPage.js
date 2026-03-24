@@ -68,14 +68,14 @@ export default function OwnerServicesPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" color="secondary.main">Services</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1 }}>
+        <Typography variant="h4" color="secondary.main" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Services</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Service</Button>
       </Box>
 
       <Card>
-        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          <Table>
+        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 }, overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 480 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
@@ -93,7 +93,7 @@ export default function OwnerServicesPage() {
                     {s.description && <Typography variant="caption" color="text.secondary">{s.description}</Typography>}
                   </TableCell>
                   <TableCell>{s.duration_minutes} min</TableCell>
-                  <TableCell>${Number(s.price).toFixed(2)}</TableCell>
+                  <TableCell>LKR {Number(s.price).toFixed(2)}</TableCell>
                   <TableCell>
                     <Chip label={s.is_active ? 'Active' : 'Inactive'} color={s.is_active ? 'success' : 'default'} size="small" />
                   </TableCell>
@@ -113,7 +113,7 @@ export default function OwnerServicesPage() {
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           <TextField label="Name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required fullWidth />
           <TextField label="Duration (minutes)" type="number" value={form.duration} onChange={(e) => setForm((f) => ({ ...f, duration: e.target.value }))} required fullWidth />
-          <TextField label="Price ($)" type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} required fullWidth inputProps={{ step: '0.01' }} />
+          <TextField label="Price (LKR)" type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} required fullWidth inputProps={{ step: '0.01' }} />
           <TextField label="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} multiline rows={2} fullWidth />
         </DialogContent>
         <DialogActions>
