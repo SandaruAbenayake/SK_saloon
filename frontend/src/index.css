@@ -1,0 +1,14 @@
+/* Minimal resets — MUI CssBaseline handles most of this */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+@media (max-width: 600px) {
+  .navbar .container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .services-list {
+    grid-template-columns: 1fr;
+  }
+}
