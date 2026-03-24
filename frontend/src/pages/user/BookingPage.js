@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Card, CardContent, CardActionArea, Grid, TextField,
-  Button, Chip, Stepper, Step, StepLabel, CircularProgress, Alert,
+  Button, Stepper, Step, StepLabel, CircularProgress, Alert,
+  FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -188,19 +189,25 @@ export default function BookingPage() {
             ) : slots.length === 0 ? (
               <Alert severity="warning">No available slots for this date. Please choose another day.</Alert>
             ) : (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {slots.map((slot) => (
-                  <Chip
-                    key={slot.start}
-                    label={slot.start}
-                    clickable
-                    variant={selectedSlot?.start === slot.start ? 'filled' : 'outlined'}
-                    color={selectedSlot?.start === slot.start ? 'primary' : 'default'}
-                    onClick={() => handleSlotSelect(slot)}
-                    sx={{ fontSize: '0.9rem', px: 1, py: 2.5 }}
-                  />
-                ))}
-              </Box>
+              <FormControl fullWidth sx={{ maxWidth: 320 }}>
+                <InputLabel id="time-slot-label">Available Times</InputLabel>
+                <Select
+                  labelId="time-slot-label"
+                  value={selectedSlot ? selectedSlot.start : ''}
+                  label="Available Times"
+                  onChange={(e) => {
+                    const slot = slots.find((s) => s.start === e.target.value);
+                    if (slot) handleSlotSelect(slot);
+                  }}
+                  startAdornment={<AccessTimeIcon sx={{ mr: 1, color: 'text.secondary' }} fontSize="small" />}
+                >
+                  {slots.map((slot) => (
+                    <MenuItem key={slot.start} value={slot.start}>
+                      {slot.start} – {slot.end}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             )}
           </CardContent>
         </Card>
