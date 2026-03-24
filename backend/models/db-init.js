@@ -89,11 +89,11 @@ async function initializeDatabase() {
     if (existingServices[0].count === 0) {
       await connection.query(`
         INSERT INTO services (name, duration_minutes, price, description) VALUES
-        ('Normal Haircut', 40, 15.00, 'Standard haircut service'),
-        ('Haircut + Beard', 60, 25.00, 'Haircut with beard grooming'),
-        ('Haircut + Hair Color', 80, 45.00, 'Haircut with hair coloring'),
-        ('Haircut + Beard + Head Massage', 90, 40.00, 'Haircut, beard grooming, and relaxing head massage'),
-        ('Haircut + Beard + Hair Color + Head Massage', 105, 60.00, 'Full premium grooming package')
+        ('Normal Haircut', 40, 500.00, 'Standard haircut service'),
+        ('Haircut + Beard', 60, 800.00, 'Haircut with beard grooming'),
+        ('Haircut + Hair Color', 80, 2500.00, 'Haircut with hair coloring'),
+        ('Haircut + Beard + Head Massage', 90, 1500.00, 'Haircut, beard grooming, and relaxing head massage'),
+        ('Haircut + Beard + Hair Color + Head Massage', 105, 3500.00, 'Full premium grooming package')
       `);
     }
 
