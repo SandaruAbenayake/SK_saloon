@@ -91,6 +91,24 @@ export default function OwnerBookingsPage() {
   };
 
   const fmt = (t) => (t ? t.slice(0, 5) : '');
+  const formatDateString = (d) => {
+    if (!d) return '';
+    // If a string, extract ISO date or first 10 chars
+    if (typeof d === 'string') {
+      return d.includes('T') ? d.split('T')[0] : d.slice(0, 10);
+    }
+
+    // If a Date object (or convertible), format using local date parts to avoid timezone shifts
+    try {
+      const dt = d instanceof Date ? d : new Date(d);
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    } catch {
+      return String(d).slice(0, 10);
+    }
+  };
   const pendingCount = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
 
@@ -143,7 +161,7 @@ export default function OwnerBookingsPage() {
                     <Typography variant="subtitle1" fontWeight={600}>{b.customer_name}</Typography>
                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 0.5 }}>
                       <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <EventIcon sx={{ fontSize: 16 }} /> {b.booking_date?.split('T')[0]}
+                        <EventIcon sx={{ fontSize: 16 }} /> {formatDateString(b.booking_date)}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <AccessTimeIcon sx={{ fontSize: 16 }} /> {fmt(b.start_time)} - {fmt(b.end_time)}
