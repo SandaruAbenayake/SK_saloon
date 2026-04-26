@@ -73,7 +73,7 @@ async function initializeDatabase() {
         booking_date DATE NOT NULL,
         start_time TIME NOT NULL,
         end_time TIME NOT NULL,
-        status ENUM('confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'confirmed',
+        status ENUM('pending', 'approved', 'cancelled', 'completed') NOT NULL DEFAULT 'pending',
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

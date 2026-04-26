@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const initializeDatabase = require('./models/db-init');
@@ -12,7 +13,13 @@ const ownerRoutes = require('./routes/owner');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }));
+app.use(
+  cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  })
+);
 app.use(express.json());
 
 // Routes

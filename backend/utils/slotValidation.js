@@ -48,11 +48,11 @@ async function getBreaks(dayOfWeek) {
 }
 
 /**
- * Get all confirmed bookings for a given date.
+ * Get all approved/confirmed bookings for a given date (excludes pending and cancelled).
  */
 async function getBookingsForDate(dateStr) {
   const [rows] = await pool.query(
-    "SELECT * FROM bookings WHERE booking_date = ? AND status = 'confirmed' ORDER BY start_time",
+    "SELECT * FROM bookings WHERE booking_date = ? AND status IN ('approved') ORDER BY start_time",
     [dateStr]
   );
   return rows;

@@ -99,15 +99,15 @@ router.post(
       const startMinutes = parseInt(startParts[0], 10) * 60 + parseInt(startParts[1], 10);
       const endTime = minutesToTime(startMinutes + service.duration_minutes);
 
-      // Insert booking
+      // Insert booking (status is 'pending' - needs owner approval)
       const [result] = await pool.query(
         `INSERT INTO bookings (customer_id, service_id, booking_date, start_time, end_time, status, notes)
-         VALUES (?, ?, ?, ?, ?, 'confirmed', ?)`,
+         VALUES (?, ?, ?, ?, ?, 'pending', ?)`,
         [req.user.id, serviceId, date, normalizedStart, endTime, notes || null]
       );
 
       res.status(201).json({
-        message: 'Booking confirmed!',
+        message: 'Booking submitted! Waiting for owner approval.',
         booking: {
           id: result.insertId,
           date,
@@ -115,7 +115,7 @@ router.post(
           endTime: endTime.slice(0, 5),
           service: service.name,
           duration: service.duration_minutes,
-          status: 'confirmed',
+          status: 'pending',
         },
       });
     } catch (err) {
