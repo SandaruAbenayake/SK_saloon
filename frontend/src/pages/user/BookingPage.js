@@ -5,7 +5,6 @@ import {
   FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import api from '../../services/api';
 import Popup from '../../components/Popup';
@@ -74,8 +73,8 @@ export default function BookingPage() {
         date: selectedDate, startTime: selectedSlot.start, serviceId: selectedService.id, notes,
       });
       setPopup({
-        title: 'Booking Confirmed!',
-        message: `${res.data.booking.service} on ${res.data.booking.date} from ${res.data.booking.startTime} to ${res.data.booking.endTime}`,
+        title: res.data.message,
+        message: `${res.data.booking.service} on ${res.data.booking.date} from ${res.data.booking.startTime} to ${res.data.booking.endTime}\n\nStatus: ${res.data.booking.status.charAt(0).toUpperCase() + res.data.booking.status.slice(1)}`,
         type: 'success',
       });
       setSelectedSlot(null);
@@ -147,7 +146,7 @@ export default function BookingPage() {
                       </Typography>
                     )}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-                      <CurrencyRupeeIcon fontSize="small" sx={{ color: 'secondary.main' }} />
+                      <Typography variant="body2" color="secondary.main" sx={{ fontWeight: 700 }}>LKR</Typography>
                       <Typography variant="h6" color="secondary.main" fontWeight={700}>
                         {Number(svc.price).toFixed(2)}
                       </Typography>
