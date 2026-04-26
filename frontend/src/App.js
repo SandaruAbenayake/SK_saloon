@@ -4,16 +4,11 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
-import OwnerLayout from './components/OwnerLayout';
 import HomePage from './pages/user/HomePage';
 import LoginPage from './pages/user/LoginPage';
 import RegisterPage from './pages/user/RegisterPage';
 import BookingPage from './pages/user/BookingPage';
 import MyBookingsPage from './pages/user/MyBookingsPage';
-import OwnerDashboard from './pages/admin/OwnerDashboard';
-import OwnerSchedulePage from './pages/admin/OwnerSchedulePage';
-import OwnerBookingsPage from './pages/admin/OwnerBookingsPage';
-import OwnerServicesPage from './pages/admin/OwnerServicesPage';
 
 function PrivateRoute({ children, role }) {
   const { user, loading } = useAuth();
@@ -41,29 +36,28 @@ function AppRoutes() {
       <Route path="/book" element={<><Navbar /><PrivateRoute role="customer"><BookingPage /></PrivateRoute></>} />
       <Route path="/my-bookings" element={<><Navbar /><PrivateRoute role="customer"><MyBookingsPage /></PrivateRoute></>} />
 
-      {/* Owner Routes — uses sidebar layout */}
-      <Route path="/owner" element={<PrivateRoute role="owner"><OwnerLayout /></PrivateRoute>}>
-        <Route path="dashboard" element={<OwnerDashboard />} />
-        <Route path="bookings" element={<OwnerBookingsPage />} />
-        <Route path="schedule" element={<OwnerSchedulePage />} />
-        <Route path="services" element={<OwnerServicesPage />} />
-        <Route index element={<Navigate to="dashboard" replace />} />
-      </Route>
-
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
 
-export default function App() {
+function ThemeWrapper({ children }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </Router>
+      {children}
     </ThemeProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <ThemeWrapper>
+          <AppRoutes />
+        </ThemeWrapper>
+      </AuthProvider>
+    </Router>
   );
 }

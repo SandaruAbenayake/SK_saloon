@@ -24,9 +24,6 @@ export default function Navbar() {
     setDrawerOpen(false);
   };
 
-  // Owner uses sidebar layout — no top navbar needed
-  if (user?.role === 'owner') return null;
-
   const mobileMenuItems = user
     ? [
         { text: 'Book Now', icon: <BookOnlineIcon />, path: '/book' },
