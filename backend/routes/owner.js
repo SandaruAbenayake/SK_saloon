@@ -173,6 +173,42 @@ router.get('/bookings', async (req, res) => {
   }
 });
 
+// PUT /api/owner/bookings/:id/approve
+router.put('/bookings/:id/approve', async (req, res) => {
+  try {
+    const [booking] = await pool.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
+    if (booking.length === 0) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    if (booking[0].status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending bookings can be approved' });
+    }
+    await pool.query("UPDATE bookings SET status = 'approved' WHERE id = ?", [req.params.id]);
+    res.json({ message: 'Booking approved!' });
+  } catch (err) {
+    console.error('Approve booking error:', err);
+    res.status(500).json({ error: 'Failed to approve booking' });
+  }
+});
+
+// PUT /api/owner/bookings/:id/reject
+router.put('/bookings/:id/reject', async (req, res) => {
+  try {
+    const [booking] = await pool.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
+    if (booking.length === 0) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    if (booking[0].status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending bookings can be rejected' });
+    }
+    await pool.query("UPDATE bookings SET status = 'cancelled' WHERE id = ?", [req.params.id]);
+    res.json({ message: 'Booking rejected!' });
+  } catch (err) {
+    console.error('Reject booking error:', err);
+    res.status(500).json({ error: 'Failed to reject booking' });
+  }
+});
+
 // PUT /api/owner/bookings/:id/complete
 router.put('/bookings/:id/complete', async (req, res) => {
   try {
