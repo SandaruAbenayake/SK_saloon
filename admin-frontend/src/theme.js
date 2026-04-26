@@ -2,61 +2,77 @@ import { createTheme } from '@mui/material/styles';
 
 const adminTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
-      main: '#2196f3',      // Bright Blue - Professional for Admin
-      light: '#64b5f6',
+      main: '#1976d2',      // Professional Blue-Gray
+      light: '#42a5f5',
       dark: '#1565c0',
     },
     secondary: {
-      main: '#00bcd4',      // Cyan - Complementary for Admin
-      light: '#4dd0e1',
-      dark: '#0097a7',
+      main: '#dc004e',      // Professional Red for accents
+      light: '#ff5983',
+      dark: '#9a0036',
     },
     background: {
-      default: '#0d47a1',
-      paper: '#1a237e',
+      default: '#f5f5f5',
+      paper: '#ffffff',
     },
     success: {
-      main: '#4caf50',
+      main: '#2e7d32',
     },
     warning: {
-      main: '#ff9800',
+      main: '#ed6c02',
     },
     error: {
-      main: '#f44336',
+      main: '#d32f2f',
     },
     info: {
-      main: '#2196f3',
+      main: '#0288d1',
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#b0bec5',
+      primary: '#212121',
+      secondary: '#757575',
     },
-    divider: '#37474f',
+    divider: '#e0e0e0',
   },
   typography: {
-    fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
+    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
     h4: {
-      fontWeight: 700,
+      fontWeight: 600,
     },
     h5: {
-      fontWeight: 700,
+      fontWeight: 600,
     },
     h6: {
-      fontWeight: 600,
+      fontWeight: 500,
     },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 8,
   },
   components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#ffffff',
+          color: '#212121',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#f8f9fa',
+          borderRight: '1px solid #e0e0e0',
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
-          border: '1px solid #37474f',
-          background: 'linear-gradient(135deg, #263238 0%, #37474f 100%)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: '1px solid #e0e0e0',
         },
       },
     },
@@ -64,36 +80,7 @@ const adminTheme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontWeight: 600,
-        },
-        containedPrimary: {
-          background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-          },
-        },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined',
-        size: 'small',
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundImage: 'none',
-          background: 'linear-gradient(135deg, #0d47a1 0%, #1a237e 100%)',
-        },
-      },
-    },
-    MuiDrawer: {
-      styleOverrides: {
-        paper: {
-          backgroundImage: 'none',
-          background: 'linear-gradient(180deg, #1a237e 0%, #0d47a1 100%)',
-          borderRight: '1px solid #37474f',
+          fontWeight: 500,
         },
       },
     },
