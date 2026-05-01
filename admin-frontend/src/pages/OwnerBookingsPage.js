@@ -21,6 +21,13 @@ const statusColor = {
   cancelled: 'error',
 };
 
+const paymentConfig = {
+  unpaid: { color: 'default', label: 'Unpaid' },
+  pending: { color: 'warning', label: 'Payment Pending' },
+  paid: { color: 'success', label: 'Payment Confirmed' },
+  failed: { color: 'error', label: 'Payment Failed' },
+};
+
 export default function OwnerBookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [dateFilter, setDateFilter] = useState('');
@@ -51,7 +58,7 @@ export default function OwnerBookingsPage() {
       fetchBookings(dateFilter);
     } catch (err) {
       console.error('Approve error:', err);
-      setError('Failed to approve booking');
+      setError(err.response?.data?.error || 'Failed to approve booking');
     }
   };
 
@@ -111,6 +118,7 @@ export default function OwnerBookingsPage() {
   };
   const pendingCount = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
+  const paidPendingCount = bookings.filter(b => b.status === 'pending' && b.payment_status === 'paid').length;
 
   return (
     <Box>
@@ -121,6 +129,9 @@ export default function OwnerBookingsPage() {
         <Box sx={{ display: 'flex', gap: 2 }}>
           {pendingCount > 0 && (
             <Chip label={`${pendingCount} Pending`} color="warning" variant="outlined" sx={{ fontWeight: 'bold' }} />
+          )}
+          {paidPendingCount > 0 && (
+            <Chip label={`${paidPendingCount} Ready to Approve`} color="success" variant="outlined" sx={{ fontWeight: 'bold' }} />
           )}
           <Chip label={`${approvedCount} Approved`} color="success" variant="outlined" />
         </Box>
@@ -150,92 +161,117 @@ export default function OwnerBookingsPage() {
         <Card><CardContent><Typography color="text.secondary" align="center">No bookings found.</Typography></CardContent></Card>
       ) : (
         <Stack spacing={2}>
-          {bookings.map((b) => (
-            <Card key={b.id} sx={{ border: b.status === 'pending' ? '2px solid #ff9800' : '1px solid #37474f' }}>
-              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1.5, py: '12px !important', flexDirection: { xs: 'column', sm: 'row' } }}>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
-                  <Avatar sx={{ bgcolor: 'secondary.main', color: '#000', fontWeight: 700 }}>
-                    {b.customer_name?.[0]?.toUpperCase() || '?'}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight={600}>{b.customer_name}</Typography>
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 0.5 }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <EventIcon sx={{ fontSize: 16 }} /> {formatDateString(b.booking_date)}
+          {bookings.map((b) => {
+            const payment = paymentConfig[b.payment_status] || { color: 'default', label: b.payment_status || 'Unpaid' };
+            const canApprove = b.status === 'pending' && b.payment_status === 'paid';
+
+            return (
+              <Card key={b.id} sx={{ border: b.status === 'pending' ? '2px solid #ff9800' : '1px solid #37474f' }}>
+                <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1.5, py: '12px !important', flexDirection: { xs: 'column', sm: 'row' } }}>
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
+                    <Avatar sx={{ bgcolor: 'secondary.main', color: '#000', fontWeight: 700 }}>
+                      {b.customer_name?.[0]?.toUpperCase() || '?'}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight={600}>{b.customer_name}</Typography>
+                      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 0.5 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <EventIcon sx={{ fontSize: 16 }} /> {formatDateString(b.booking_date)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <AccessTimeIcon sx={{ fontSize: 16 }} /> {fmt(b.start_time)} - {fmt(b.end_time)}
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ mt: 0.5 }}>
+                        {b.service_name} &bull; <strong>LKR {Number(b.price).toFixed(2)}</strong>
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <AccessTimeIcon sx={{ fontSize: 16 }} /> {fmt(b.start_time)} - {fmt(b.end_time)}
-                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <PhoneIcon sx={{ fontSize: 14 }} /> {b.customer_phone}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <EmailIcon sx={{ fontSize: 14 }} /> {b.customer_email}
+                        </Typography>
+                      </Box>
+                      {b.payment_status === 'paid' && b.status === 'pending' && (
+                        <Alert severity="success" sx={{ mt: 1, py: 0.5 }}>
+                          Mock payment confirmed. Safe for admin approval.
+                        </Alert>
+                      )}
+                      {b.payment_status !== 'paid' && b.status === 'pending' && (
+                        <Alert severity="info" sx={{ mt: 1, py: 0.5 }}>
+                          Wait for mock payment confirmation before approving.
+                        </Alert>
+                      )}
+                      {b.notes && (
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', fontStyle: 'italic' }}>
+                          Notes: {b.notes}
+                        </Typography>
+                      )}
                     </Box>
-                    <Typography variant="body2" sx={{ mt: 0.5 }}>
-                      {b.service_name} &bull; <strong>LKR {Number(b.price).toFixed(2)}</strong>
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <PhoneIcon sx={{ fontSize: 14 }} /> {b.customer_phone}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <EmailIcon sx={{ fontSize: 14 }} /> {b.customer_email}
-                      </Typography>
-                    </Box>
-                    {b.notes && (
-                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', fontStyle: 'italic' }}>
-                        Notes: {b.notes}
-                      </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    {/* Admin sees payment and booking status separately before deciding. */}
+                    <Chip
+                      label={payment.label}
+                      color={payment.color}
+                      size="small"
+                      sx={{ fontWeight: 'bold' }}
+                    />
+                    <Chip
+                      label={b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+                      color={statusColor[b.status] || 'default'}
+                      size="small"
+                      sx={{ fontWeight: 'bold' }}
+                    />
+                    {b.status === 'pending' && (
+                      <>
+                        <Tooltip title={canApprove ? 'Approve Booking' : 'Payment must be confirmed first'}>
+                          <span>
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="success"
+                              startIcon={<ThumbUpIcon />}
+                              onClick={() => handleApprove(b.id)}
+                              disabled={!canApprove}
+                            >
+                              Approve
+                            </Button>
+                          </span>
+                        </Tooltip>
+                        <Tooltip title="Reject Booking">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            startIcon={<ThumbDownIcon />}
+                            onClick={() => handleReject(b.id)}
+                          >
+                            Reject
+                          </Button>
+                        </Tooltip>
+                      </>
+                    )}
+                    {b.status === 'approved' && (
+                      <>
+                        <Tooltip title="Mark Complete">
+                          <IconButton color="success" size="small" onClick={() => handleComplete(b.id)}>
+                            <CheckCircleIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Cancel">
+                          <IconButton color="error" size="small" onClick={() => handleCancel(b.id)}>
+                            <CancelIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </>
                     )}
                   </Box>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <Chip
-                    label={b.status.charAt(0).toUpperCase() + b.status.slice(1)}
-                    color={statusColor[b.status] || 'default'}
-                    size="small"
-                    sx={{ fontWeight: 'bold' }}
-                  />
-                  {b.status === 'pending' && (
-                    <>
-                      <Tooltip title="Approve Booking">
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="success"
-                          startIcon={<ThumbUpIcon />}
-                          onClick={() => handleApprove(b.id)}
-                        >
-                          Approve
-                        </Button>
-                      </Tooltip>
-                      <Tooltip title="Reject Booking">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="error"
-                          startIcon={<ThumbDownIcon />}
-                          onClick={() => handleReject(b.id)}
-                        >
-                          Reject
-                        </Button>
-                      </Tooltip>
-                    </>
-                  )}
-                  {b.status === 'approved' && (
-                    <>
-                      <Tooltip title="Mark Complete">
-                        <IconButton color="success" size="small" onClick={() => handleComplete(b.id)}>
-                          <CheckCircleIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Cancel">
-                        <IconButton color="error" size="small" onClick={() => handleCancel(b.id)}>
-                          <CancelIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </>
-                  )}
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </Stack>
       )}
     </Box>
