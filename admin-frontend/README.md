@@ -1,90 +1,255 @@
-# BarberBook Admin Frontend
+# SK Salon Admin Frontend
 
-This is the admin dashboard for the BarberBook salon booking application. It provides a separate interface for salon owners to manage bookings, schedule, and services.
+This is the owner/admin dashboard for the SK Salon booking system. It is a separate React application used by salon owners to review customer bookings, confirm payment state, approve or reject bookings, manage schedules, and manage services.
+
+The admin frontend does not process payments directly. It reads payment status from the backend and only allows approval when the customer mock payment has been confirmed.
+
+## Run The Admin App
+
+Start the backend first:
+
+```bash
+cd backend
+npm run dev
+```
+
+Then start the admin frontend:
+
+```bash
+cd admin-frontend
+npm install
+npm start
+```
+
+The admin dashboard runs at:
+
+```text
+http://localhost:3001
+```
+
+If port `3001` is busy, React may ask to use another port.
+
+## Backend Requirement
+
+The admin app calls:
+
+```text
+http://localhost:5001/api
+```
+
+Make sure the backend `.env` includes:
+
+```env
+PORT=5001
+```
+
+The API base URL is configured in:
+
+```text
+src/services/api.js
+```
+
+## Default Owner Login
+
+For local development, the backend seeds an owner account when no owner exists:
+
+```text
+Email: owner@salon.com
+Password: owner123
+```
+
+Use this only for development. Change/remove default credentials before any real deployment.
 
 ## Project Structure
 
-```
+```text
 admin-frontend/
+├── public/
+│   └── index.html
 ├── src/
 │   ├── components/
-│   │   └── OwnerLayout.js       # Main admin layout with sidebar
+│   │   └── OwnerLayout.js
 │   ├── context/
-│   │   └── AuthContext.js       # Authentication context (shared with backend)
+│   │   └── AuthContext.js
 │   ├── pages/
-│   │   ├── OwnerDashboard.js    # Dashboard overview
-│   │   ├── OwnerBookingsPage.js # Booking management
-│   │   ├── OwnerSchedulePage.js # Schedule management
-│   │   └── OwnerServicesPage.js # Services management
+│   │   ├── LoginPage.js
+│   │   ├── OwnerDashboard.js
+│   │   ├── OwnerBookingsPage.js
+│   │   ├── OwnerSchedulePage.js
+│   │   └── OwnerServicesPage.js
 │   ├── services/
-│   │   └── api.js               # API service (axios instance)
-│   ├── App.js                   # Main app component with router
-│   ├── index.js                 # Entry point
-│   ├── index.css                # Global styles
-│   └── theme.js                 # Dark admin theme
-├── public/
-│   └── index.html               # HTML template
-├── package.json                 # Dependencies and scripts
-└── .gitignore
+│   │   └── api.js
+│   ├── App.js
+│   ├── index.js
+│   ├── index.css
+│   └── theme.js
+├── package.json
+└── README.md
 ```
 
-## Installation
+## Admin Features
 
-1. Navigate to the admin-frontend directory:
-```bash
-cd admin-frontend
+- Owner login
+- Dashboard overview
+- View all customer bookings
+- Filter bookings by date
+- See customer contact details
+- See booking status
+- See mock payment status
+- Approve bookings only after payment is confirmed
+- Reject pending bookings
+- Mark approved bookings as completed
+- Cancel approved bookings
+- Manage operating hours
+- Manage breaks
+- Manage closed dates
+- Add/edit salon services
+- Activate/deactivate services
+
+## Booking And Payment Rules
+
+Booking approval and payment confirmation are separate.
+
+Booking status:
+
+```text
+pending
+approved
+cancelled
+completed
 ```
 
-2. Install dependencies:
-```bash
-npm install
+Payment status:
+
+```text
+unpaid
+pending
+paid
+failed
 ```
 
-## Development
+The admin can approve only when:
 
-To start the development server on port 3001 (or next available port):
+```text
+booking.status = pending
+payment_status = paid
+```
+
+If payment is not confirmed, the admin page disables the **Approve** button and shows:
+
+```text
+Wait for mock payment confirmation before approving.
+```
+
+When payment is confirmed, the admin page shows:
+
+```text
+Mock payment confirmed. Safe for admin approval.
+```
+
+## Mock Payment Workflow
+
+The mock payment flow starts in the customer frontend, not in the admin frontend.
+
+Flow:
+
+1. Customer selects a service, date, and time.
+2. Customer creates a mock payment session.
+3. Backend creates a pending booking and pending payment row.
+4. Customer confirms the mock payment.
+5. Backend mock webhook validates the token.
+6. Backend updates `payment_status` to `paid`.
+7. Admin dashboard shows **Payment Confirmed**.
+8. Admin can approve the booking.
+
+No card number, CVV, expiry date, or real payment information is collected or stored.
+
+## Backend Routes Used
+
+Authentication:
+
+```text
+POST /api/auth/login
+GET  /api/auth/me
+```
+
+Bookings:
+
+```text
+GET /api/owner/bookings
+PUT /api/owner/bookings/:id/approve
+PUT /api/owner/bookings/:id/reject
+PUT /api/owner/bookings/:id/complete
+PUT /api/bookings/:id/cancel
+```
+
+Schedule:
+
+```text
+GET    /api/schedule
+PUT    /api/owner/schedule/:dayOfWeek
+GET    /api/owner/breaks
+POST   /api/owner/breaks
+DELETE /api/owner/breaks/:id
+GET    /api/schedule/closed-dates
+POST   /api/owner/closed-dates
+DELETE /api/owner/closed-dates/:id
+```
+
+Services:
+
+```text
+GET  /api/services
+POST /api/owner/services
+PUT  /api/owner/services/:id
+```
+
+## Development Commands
+
+Start admin frontend:
+
 ```bash
 npm start
 ```
 
-The admin dashboard will be available at `http://localhost:3001`
+Build admin frontend:
 
-## Build
-
-To build for production:
 ```bash
 npm run build
 ```
 
-## Features
+## Troubleshooting
 
-- **Dashboard**: Overview of today's appointments, pending bookings, and statistics
-- **Bookings**: Manage customer bookings (approve, reject, complete, cancel)
-- **Schedule**: Set operating hours, breaks, and closed dates
-- **Services**: Add, edit, and manage salon services
+### Login Fails
 
-## Authentication
+- Confirm the backend is running.
+- Confirm `JWT_SECRET` exists in backend `.env`.
+- Clear browser localStorage and log in again.
+- Make sure the user has role `owner`.
 
-The admin frontend shares the same authentication with the backend as the customer frontend. Owners must log in with credentials that have the `owner` role in the database.
+### Bookings Do Not Load
 
-## Backend Configuration
+- Confirm backend is running on `http://localhost:5001`.
+- Check `src/services/api.js`.
+- Confirm the owner token exists in browser localStorage.
 
-Make sure the backend API is running on `http://localhost:5001/api` (configurable in `src/services/api.js`)
+### Approve Button Is Disabled
 
-## Backend Routes Used
+This is expected when payment is not confirmed.
 
-- `POST /auth/login` - Owner login
-- `GET /owner/bookings` - Fetch all bookings
-- `PUT /owner/bookings/:id/approve` - Approve booking
-- `PUT /owner/bookings/:id/reject` - Reject booking
-- `PUT /owner/bookings/:id/complete` - Mark booking as complete
-- `PUT /bookings/:id/cancel` - Cancel booking
-- `GET /schedule` - Fetch schedule
-- `PUT /owner/schedule/:day` - Update daily schedule
-- `POST /owner/breaks` - Add break
-- `DELETE /owner/breaks/:id` - Delete break
-- `POST /owner/closed-dates` - Add closed date
-- `DELETE /owner/closed-dates/:id` - Delete closed date
-- `GET /services` - Fetch services
-- `POST /owner/services` - Create service
-- `PUT /owner/services/:id` - Update service
+Ask the customer to complete the mock payment flow first. The admin page should show **Payment Confirmed** before approval is allowed.
+
+### Payment Confirmed But Admin Still Cannot Approve
+
+- Refresh the admin bookings page.
+- Check that the booking still has `status = pending`.
+- Check that the booking has `payment_status = paid`.
+- Restart the backend if database schema changes were just added.
+
+## Security Notes
+
+- Admin routes require an authenticated owner JWT.
+- The admin frontend does not store or handle card data.
+- Payment confirmation is controlled by backend state.
+- Backend approval logic also checks payment status, so frontend button state is not the only protection.
+- Default owner credentials are for local development only.
