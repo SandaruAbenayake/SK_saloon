@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import api from '../../services/api';
 import Popup from '../../components/Popup';
 
@@ -19,6 +20,8 @@ export default function BookingPage() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [popup, setPopup] = useState(null);
   const [booking, setBooking] = useState(false);
+  const [paymentSession, setPaymentSession] = useState(null);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
 
   const activeStep = selectedSlot ? 3 : selectedDate && selectedService ? 2 : selectedService ? 1 : 0;
 
@@ -34,6 +37,7 @@ export default function BookingPage() {
     if (!selectedService || !selectedDate) return;
     setLoadingSlots(true);
     setSelectedSlot(null);
+    setPaymentSession(null);
     try {
       const res = await api.get('/bookings/available-slots', {
         params: { date: selectedDate, serviceId: selectedService.id },
@@ -50,6 +54,7 @@ export default function BookingPage() {
 
   const handleSlotSelect = async (slot) => {
     setSelectedSlot(slot);
+    setPaymentSession(null);
     try {
       const res = await api.post('/bookings/validate', {
         date: selectedDate, startTime: slot.start, serviceId: selectedService.id,
@@ -69,20 +74,20 @@ export default function BookingPage() {
     if (!selectedSlot || !selectedService || !selectedDate) return;
     setBooking(true);
     try {
-      const res = await api.post('/bookings', {
+      // Start the backend-owned mock payment flow. The frontend sends booking choices only;
+      // price, payment status, and slot locking are handled by the backend.
+      const res = await api.post('/payments/create-session', {
         date: selectedDate, startTime: selectedSlot.start, serviceId: selectedService.id, notes,
       });
+      setPaymentSession(res.data);
       setPopup({
-        title: res.data.message,
-        message: `${res.data.booking.service} on ${res.data.booking.date} from ${res.data.booking.startTime} to ${res.data.booking.endTime}\n\nStatus: ${res.data.booking.status.charAt(0).toUpperCase() + res.data.booking.status.slice(1)}`,
-        type: 'success',
+        title: 'Mock Payment Session Created',
+        message: `Session: ${res.data.payment.sessionId}\nAmount: LKR ${Number(res.data.payment.amount).toFixed(2)}\n\nConfirm the mock payment to send the simulated webhook.`,
+        type: 'info',
       });
-      setSelectedSlot(null);
-      setNotes('');
-      fetchSlots();
     } catch (err) {
       setPopup({
-        title: 'Booking Failed',
+        title: 'Payment Session Failed',
         message: err.response?.data?.reason || err.response?.data?.error || 'Booking failed',
         type: 'error',
       });
@@ -90,6 +95,33 @@ export default function BookingPage() {
       fetchSlots();
     } finally {
       setBooking(false);
+    }
+  };
+
+  const handleConfirmMockPayment = async () => {
+    if (!paymentSession?.mockWebhook?.body) return;
+    setConfirmingPayment(true);
+    try {
+      // Learning-only simulation: this calls the webhook endpoint with the token returned
+      // by the backend. A real gateway would call this endpoint server-to-server.
+      const res = await api.post(paymentSession.mockWebhook.url, paymentSession.mockWebhook.body);
+      setPopup({
+        title: 'Mock Payment Confirmed',
+        message: `${res.data.message}\n\nYour booking is now paid and waiting for admin approval.`,
+        type: 'success',
+      });
+      setSelectedSlot(null);
+      setPaymentSession(null);
+      setNotes('');
+      fetchSlots();
+    } catch (err) {
+      setPopup({
+        title: 'Mock Payment Failed',
+        message: err.response?.data?.error || 'Could not confirm mock payment.',
+        type: 'error',
+      });
+    } finally {
+      setConfirmingPayment(false);
     }
   };
 
@@ -216,7 +248,7 @@ export default function BookingPage() {
       {selectedSlot && (
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>4. Confirm Booking</Typography>
+            <Typography variant="h6" gutterBottom>4. Mock Payment</Typography>
             <Box sx={{ bgcolor: 'background.default', borderRadius: 2, p: { xs: 1.5, sm: 2 }, mb: 2 }}>
               <Grid container spacing={1}>
                 <Grid size={{ xs: 5, sm: 6 }}><Typography variant="body2" color="text.secondary">Service</Typography></Grid>
@@ -243,12 +275,31 @@ export default function BookingPage() {
               variant="contained"
               size="large"
               onClick={handleBook}
-              disabled={booking}
+              disabled={booking || Boolean(paymentSession)}
               fullWidth
               sx={{ px: 5 }}
             >
-              {booking ? 'Booking...' : 'Confirm Booking'}
+              {booking ? 'Creating Session...' : 'Create Mock Payment Session'}
             </Button>
+            {paymentSession && (
+              <Alert
+                severity="info"
+                icon={<PaymentsIcon />}
+                sx={{ mt: 2 }}
+                action={
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={handleConfirmMockPayment}
+                    disabled={confirmingPayment}
+                  >
+                    {confirmingPayment ? 'Confirming...' : 'Confirm'}
+                  </Button>
+                }
+              >
+                Mock payment session ready. No card details are collected or stored.
+              </Alert>
+            )}
           </CardContent>
         </Card>
       )}

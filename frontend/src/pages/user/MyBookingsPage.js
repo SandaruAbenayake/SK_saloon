@@ -46,6 +46,13 @@ export default function MyBookingsPage() {
     cancelled: { color: 'error', label: 'Cancelled', icon: <CancelIcon sx={{ fontSize: 16 }} /> },
   };
 
+  const paymentConfig = {
+    unpaid: { color: 'default', label: 'Unpaid' },
+    pending: { color: 'warning', label: 'Payment Pending' },
+    paid: { color: 'success', label: 'Paid' },
+    failed: { color: 'error', label: 'Payment Failed' },
+  };
+
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>;
   }
@@ -62,6 +69,7 @@ export default function MyBookingsPage() {
         <Stack spacing={2}>
           {bookings.map((b) => {
             const config = statusConfig[b.status] || { color: 'default', label: b.status };
+            const payment = paymentConfig[b.payment_status] || { color: 'default', label: b.payment_status || 'Unpaid' };
             return (
               <Card key={b.id} sx={{ border: b.status === 'pending' ? '2px solid #ff9800' : '1px solid #2a2a4a' }}>
                 <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1.5, flexDirection: { xs: 'column', sm: 'row' } }}>
@@ -82,13 +90,25 @@ export default function MyBookingsPage() {
                     <Typography variant="body2" color="secondary.main" fontWeight={600} sx={{ mt: 0.5 }}>
                       LKR {Number(b.price).toFixed(2)}
                     </Typography>
-                    {b.status === 'pending' && (
+                    {/* Booking approval and payment confirmation are separate states. */}
+                    {b.payment_status === 'paid' && b.status === 'pending' && (
                       <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
-                        Waiting for owner approval...
+                        Payment confirmed. Waiting for owner approval...
+                      </Alert>
+                    )}
+                    {b.payment_status === 'pending' && (
+                      <Alert severity="info" sx={{ mt: 1, py: 0.5 }}>
+                        Waiting for mock payment confirmation...
                       </Alert>
                     )}
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip
+                      label={payment.label}
+                      color={payment.color}
+                      size="small"
+                      sx={{ fontWeight: 'bold' }}
+                    />
                     <Chip
                       icon={config.icon}
                       label={config.label}
