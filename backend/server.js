@@ -9,6 +9,7 @@ const serviceRoutes = require('./routes/services');
 const bookingRoutes = require('./routes/bookings');
 const scheduleRoutes = require('./routes/schedule');
 const ownerRoutes = require('./routes/owner');
+const paymentRoutes = require('./routes/payments');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/owner', ownerRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

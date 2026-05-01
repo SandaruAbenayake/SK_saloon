@@ -1,5 +1,18 @@
 const pool = require('../config/db');
 
+async function ensureColumn(connection, tableName, columnName, definition) {
+  const [columns] = await connection.query(
+    `SELECT COLUMN_NAME
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [tableName, columnName]
+  );
+
+  if (columns.length === 0) {
+    await connection.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  }
+}
+
 async function initializeDatabase() {
   const connection = await pool.getConnection();
   try {
@@ -74,6 +87,9 @@ async function initializeDatabase() {
         start_time TIME NOT NULL,
         end_time TIME NOT NULL,
         status ENUM('pending', 'approved', 'cancelled', 'completed') NOT NULL DEFAULT 'pending',
+        payment_status ENUM('unpaid', 'pending', 'paid', 'failed') NOT NULL DEFAULT 'unpaid',
+        payment_session_id VARCHAR(100),
+        payment_confirmed_at TIMESTAMP NULL,
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -81,6 +97,36 @@ async function initializeDatabase() {
         FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE,
         INDEX idx_booking_date (booking_date),
         INDEX idx_booking_slot (booking_date, start_time, end_time)
+      )
+    `);
+
+    // Existing local databases may already have bookings, so add mock-payment columns safely.
+    await ensureColumn(
+      connection,
+      'bookings',
+      'payment_status',
+      "ENUM('unpaid', 'pending', 'paid', 'failed') NOT NULL DEFAULT 'unpaid'"
+    );
+    await ensureColumn(connection, 'bookings', 'payment_session_id', 'VARCHAR(100)');
+    await ensureColumn(connection, 'bookings', 'payment_confirmed_at', 'TIMESTAMP NULL');
+
+    // Mock payment sessions. This stores no card data; only backend-owned session metadata.
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        booking_id INT NOT NULL,
+        session_id VARCHAR(100) NOT NULL UNIQUE,
+        amount DECIMAL(10, 2) NOT NULL,
+        currency VARCHAR(10) NOT NULL DEFAULT 'LKR',
+        status ENUM('pending', 'paid', 'failed') NOT NULL DEFAULT 'pending',
+        webhook_token VARCHAR(255) NOT NULL,
+        confirmed_at TIMESTAMP NULL,
+        raw_event JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+        INDEX idx_payment_booking (booking_id),
+        INDEX idx_payment_status (status)
       )
     `);
 

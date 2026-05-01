@@ -48,11 +48,18 @@ async function getBreaks(dayOfWeek) {
 }
 
 /**
- * Get all approved/confirmed bookings for a given date (excludes pending and cancelled).
+ * Get bookings that should block a time slot.
+ * Mock payment sessions are treated as temporary holds, so pending paid/payment-pending
+ * bookings block the slot before the owner makes the final approval decision.
  */
 async function getBookingsForDate(dateStr) {
   const [rows] = await pool.query(
-    "SELECT * FROM bookings WHERE booking_date = ? AND status IN ('approved') ORDER BY start_time",
+    `SELECT *
+     FROM bookings
+     WHERE booking_date = ?
+       AND status IN ('pending', 'approved')
+       AND payment_status IN ('pending', 'paid')
+     ORDER BY start_time`,
     [dateStr]
   );
   return rows;
@@ -113,7 +120,7 @@ async function validateSlot(dateStr, startTime, durationMinutes, excludeBookingI
     }
   }
 
-  // 6. Check if slot overlaps with any existing confirmed booking
+  // 6. Check if slot overlaps with approved bookings or active payment holds.
   const bookings = await getBookingsForDate(dateStr);
   for (const booking of bookings) {
     if (excludeBookingId && booking.id === excludeBookingId) continue;

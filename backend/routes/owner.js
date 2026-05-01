@@ -183,6 +183,12 @@ router.put('/bookings/:id/approve', async (req, res) => {
     if (booking[0].status !== 'pending') {
       return res.status(400).json({ error: 'Only pending bookings can be approved' });
     }
+    // Admin approval is a business decision. Payment confirmation must happen first.
+    if (booking[0].payment_status !== 'paid') {
+      return res.status(400).json({
+        error: 'Booking cannot be approved until mock payment is confirmed',
+      });
+    }
     await pool.query("UPDATE bookings SET status = 'approved' WHERE id = ?", [req.params.id]);
     res.json({ message: 'Booking approved!' });
   } catch (err) {

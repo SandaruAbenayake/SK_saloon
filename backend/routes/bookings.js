@@ -99,10 +99,12 @@ router.post(
       const startMinutes = parseInt(startParts[0], 10) * 60 + parseInt(startParts[1], 10);
       const endTime = minutesToTime(startMinutes + service.duration_minutes);
 
-      // Insert booking (status is 'pending' - needs owner approval)
+      // Direct bookings remain unpaid. The mock payment flow should use
+      // POST /api/payments/create-session so payment and booking states stay separate.
       const [result] = await pool.query(
-        `INSERT INTO bookings (customer_id, service_id, booking_date, start_time, end_time, status, notes)
-         VALUES (?, ?, ?, ?, ?, 'pending', ?)`,
+        `INSERT INTO bookings
+         (customer_id, service_id, booking_date, start_time, end_time, status, payment_status, notes)
+         VALUES (?, ?, ?, ?, ?, 'pending', 'unpaid', ?)`,
         [req.user.id, serviceId, date, normalizedStart, endTime, notes || null]
       );
 
@@ -116,6 +118,7 @@ router.post(
           service: service.name,
           duration: service.duration_minutes,
           status: 'pending',
+          paymentStatus: 'unpaid',
         },
       });
     } catch (err) {
